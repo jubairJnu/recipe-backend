@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 
 const User = require("./User.Model");
+const Recipe = require("../recipe/Recipe.Model");
+const { default: mongoose } = require("mongoose");
 
 const createUserIntoDB = async (payload) => {
   // console.log(payload, "in service");
@@ -40,10 +42,86 @@ const getUserInfoFromDB = async (email) => {
   return result;
 };
 
+// purchase recipe
+
+// const purchaseRecipeFromDB = async (user, recipe) => {
+//   const checkUser = await User.findOne({ email: user });
+//   if (!checkUser) {
+//     return;
+//   }
+//   // have user
+
+//   const decreamentUserCoin = await User.findOneAndUpdate(
+//     { email: user },
+//     { $inc: { coin: -10 } }
+//   );
+//   // then increament one
+
+//   const incrementCoint = await User.findOneAndUpdate(
+//     { email: recipe.creatorEmail },
+//     { $inc: { coin: 1 } }
+//   );
+
+//   // then update watchTime
+
+//   const increamentWatchTime = await Recipe.findOneAndUpdate(
+//     { _id: recipe.id },
+//     { $inc: { watchCount: 1 } }
+//   );
+// };
+const purchaseRecipeFromDB = async (payload) => {
+  console.log(payload, "in service purchase");
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const checkUser = await User.findOne({ email: payload.user }).session(
+      session
+    );
+    if (!checkUser) {
+      throw new Error("User not found");
+    }
+
+    // Decrease user's coin balance by 10
+    await User.findOneAndUpdate(
+      { email: payload.user },
+      { $inc: { coin: -10 } },
+      { session }
+    );
+
+    // Increase creator's coin balance by 1
+    await User.findOneAndUpdate(
+      { email: payload.creatorEmail },
+      { $inc: { coin: 1 } },
+      { session }
+    );
+
+    // Increment watchCount for the recipe
+    await Recipe.findOneAndUpdate(
+      { _id: payload.id },
+      {
+        $addToSet: { purchased_by: payload.user },
+        $inc: { watchCount: 1 },
+      },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+    console.log("Transaction committed successfully");
+  } catch (error) {
+    console.log(error);
+    await session.abortTransaction();
+    session.endSession();
+    console.error("Transaction aborted due to error:", error);
+  }
+};
+
 // exporst
 module.exports = {
   userServices: {
     createUserIntoDB,
     getUserInfoFromDB,
+    purchaseRecipeFromDB,
   },
 };
