@@ -33,7 +33,7 @@ const getAllRecipesFromDB = async (name, category, country, page) => {
   if (category) {
     query.category = { $regex: `^${category}$`, $options: "i" };
   }
-  let limit = 1;
+  let limit = 10;
   // Calculate the number of documents to skip
   const skip = (page - 1) * limit;
 
