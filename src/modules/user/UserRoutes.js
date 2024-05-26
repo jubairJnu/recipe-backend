@@ -4,6 +4,7 @@ const router = express.Router();
 
 router.post("/sign-up", userControllers.createUser);
 router.post("/purchase-recipe", userControllers.purchaseRecipe);
+router.patch("/purchase-coin/:email", userControllers.purchaseCoin);
 router.get("/:email", userControllers.getUserInfo);
 
 // exports

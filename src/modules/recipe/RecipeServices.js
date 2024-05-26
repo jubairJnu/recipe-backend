@@ -18,9 +18,35 @@ const createRecipeIntoDB = async (payload) => {
 
 // get all
 
-const getAllRecipesFromDB = async (email) => {
-  const result = await Recipe.find();
-  return result;
+const getAllRecipesFromDB = async (name, category, country, page) => {
+  // console.log(page, "page");
+  let query = {};
+
+  if (name) {
+    query.name = { $regex: name, $options: "i" };
+  }
+
+  if (country) {
+    query.country = { $regex: country, $options: "i" };
+  }
+
+  if (category) {
+    query.category = { $regex: `^${category}$`, $options: "i" };
+  }
+  let limit = 1;
+  // Calculate the number of documents to skip
+  const skip = (page - 1) * limit;
+
+  // Find recipes based on the constructed query, and apply pagination
+  const result = await Recipe.find(query).skip(skip).limit(limit);
+
+  // Get the total count of documents matching the query
+  const totalCount = await Recipe.countDocuments(query);
+  // console.log(result, "in service");
+  return {
+    data: result,
+    totalCount: totalCount,
+  };
 };
 
 // get single

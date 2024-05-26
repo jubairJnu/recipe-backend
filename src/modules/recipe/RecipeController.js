@@ -24,11 +24,20 @@ const createRecipes = async (req, res) => {
 
 const getAllRecipes = async (req, res) => {
   try {
-    const result = await recipesServices.getAllRecipesFromDB();
+    const { name, category, country, page } = req.query;
+    // console.log(category, "cat in controller");
+    const result = await recipesServices.getAllRecipesFromDB(
+      name,
+      category,
+      country,
+      page,
+     
+    );
     res.status(200).json({
       success: true,
       message: " retrived successfully",
       data: result,
+     
     });
   } catch (error) {
     console.log(error);

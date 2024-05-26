@@ -44,33 +44,8 @@ const getUserInfoFromDB = async (email) => {
 
 // purchase recipe
 
-// const purchaseRecipeFromDB = async (user, recipe) => {
-//   const checkUser = await User.findOne({ email: user });
-//   if (!checkUser) {
-//     return;
-//   }
-//   // have user
-
-//   const decreamentUserCoin = await User.findOneAndUpdate(
-//     { email: user },
-//     { $inc: { coin: -10 } }
-//   );
-//   // then increament one
-
-//   const incrementCoint = await User.findOneAndUpdate(
-//     { email: recipe.creatorEmail },
-//     { $inc: { coin: 1 } }
-//   );
-
-//   // then update watchTime
-
-//   const increamentWatchTime = await Recipe.findOneAndUpdate(
-//     { _id: recipe.id },
-//     { $inc: { watchCount: 1 } }
-//   );
-// };
 const purchaseRecipeFromDB = async (payload) => {
-  console.log(payload, "in service purchase");
+  // console.log(payload, "in service purchase");
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -117,11 +92,22 @@ const purchaseRecipeFromDB = async (payload) => {
   }
 };
 
+// purchase coin
+
+const purchaseCoinFromDB = async (payload, email) => {
+  const result = await User.findOneAndUpdate(
+    { email: email },
+    { $inc: { coin: payload } }
+  );
+  return result;
+};
+
 // exporst
 module.exports = {
   userServices: {
     createUserIntoDB,
     getUserInfoFromDB,
     purchaseRecipeFromDB,
+    purchaseCoinFromDB,
   },
 };

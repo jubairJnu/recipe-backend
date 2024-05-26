@@ -4,6 +4,8 @@ const { userRoutes } = require("./src/modules/user/UserRoutes");
 const app = express();
 const cors = require("cors");
 const { recipesRoutes } = require("./src/modules/recipe/RecipeRoutes");
+const { homeRoutes } = require("./src/modules/homePage/HomePageRoutes");
+
 require("dotenv").config();
 const port = 3000;
 
@@ -36,6 +38,7 @@ async function run() {
 
     app.use("/user", userRoutes);
     app.use("/recipe", recipesRoutes);
+    app.use("/home", homeRoutes);
 
     // Send a ping to confirm a successful connection
 

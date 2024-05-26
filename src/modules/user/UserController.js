@@ -68,6 +68,31 @@ const purchaseRecipe = async (req, res) => {
   }
 };
 
+// purchase coin
+
+const purchaseCoin = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const data = req.body.data;
+
+    console.log(email, "in controller", data);
+
+    const result = await userServices.purchaseCoinFromDB(data, email);
+    res.status(200).json({
+      success: true,
+      message: "update retrived successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.statusCode ? error.statusCode : 500).json({
+      success: false,
+      // error: error,
+      message: error?.message ? error.message : "something went wrong",
+    });
+  }
+};
+
 // exports
 
 module.exports = {
@@ -75,5 +100,6 @@ module.exports = {
     createUser,
     getUserInfo,
     purchaseRecipe,
+    purchaseCoin,
   },
 };
