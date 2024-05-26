@@ -5,8 +5,10 @@ const app = express();
 const cors = require("cors");
 const { recipesRoutes } = require("./src/modules/recipe/RecipeRoutes");
 const { homeRoutes } = require("./src/modules/homePage/HomePageRoutes");
+const { default: mongoose } = require("mongoose");
 
 require("dotenv").config();
+
 const port = 3000;
 
 app.use(
@@ -30,28 +32,23 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-async function run() {
+const url = `mongodb+srv://${process.env.DBUSER}:${process.env.DBPASS}@cluster0.d8yzbln.mongodb.net/TaskDB?retryWrites=true&w=majority&appName=Cluster0`;
+async function main() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await connectWithMongoose();
+    await mongoose.connect(url);
+
+    console.log("Connected to MongoDB with Mongoose");
 
     app.use("/user", userRoutes);
     app.use("/recipe", recipesRoutes);
     app.use("/home", homeRoutes);
 
-    // Send a ping to confirm a successful connection
-
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+    app.listen(port, () => {
+      console.log(`Example app listening on port ${port}`);
+    });
+  } catch (err) {
+    console.log(err);
   }
 }
-run().catch(console.dir);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+main();
